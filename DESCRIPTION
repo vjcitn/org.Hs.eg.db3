@@ -1,6 +1,6 @@
 Package: org.Hs.eg.db3
 Title: AnnotationDbi OrgDB analog for human on parquet+arrow+dplyr
-Version: 0.0.1
+Version: 0.0.2
 Authors@R:
     person(given = "Vince",
            family = "Carey",
@@ -11,7 +11,8 @@ Description: This package defines Bioconductor-oriented
 	interfaces to NCBI Gene annotations based on parquet+arrow+dplyr, emulating some of 
 	the functionality of the AnnotationDbi-based org.Hs.eg.db.
 Depends: R (>= 4.2.0)
-Imports: methods, AnnotationDbi, BiocManager, dplyr, arrow, rlang
+Imports: methods, AnnotationDbi, BiocManager, dplyr, arrow, rlang,
+	BiocGenerics
 Suggests: knitr, BiocStyle, testthat, rmarkdown
 License: MIT + file LICENSE
 VignetteBuilder: knitr

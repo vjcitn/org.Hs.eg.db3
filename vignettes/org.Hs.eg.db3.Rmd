@@ -1,0 +1,36 @@
+---
+title: "org.Hs.eg.db3: parquet-based AnnotationDbi for Hs"
+shorttitle: "outlier dytection methods"
+author: "Vincent J. Carey, stvjc at channing.harvard.edu"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{org.Hs.eg.db3: parquet-based AnnotationDbi for Hs}
+  %\VignetteEncoding{UTF-8}
+output:
+  BiocStyle::html_document:
+    highlight: pygments
+    number_sections: yes
+    theme: united
+    toc: yes
+---
+
+# Introduction
+
+There are two key characteristics of the org.Xx packages.
+
+- environments that manage mappings between identifiers;
+- database tables that respond to AnnotationDbi::select and possibly other
+SQLite-oriented processes.
+
+We are moving away from SQLite and the Annotation pipeline.  This
+package is intended to be more maintainable.
+
+# Environment example
+
+```{r lkenv1, message=FALSE}
+library(org.Hs.eg.db3)
+org.Hs.egGO
+toTable(org.Hs.egGO) |> head(10)
+```
+

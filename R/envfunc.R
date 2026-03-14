@@ -114,70 +114,11 @@ makeALIAS2EGENV = function(pkgname) {
 #' @export
 org.Hs.egALIAS2EG <- NULL
 
-
-
-#makeALIAS2EGENV = function(pkgname) {
-#  ns <- getNamespace(pkgname)
-## import the gene2accession parquet
-#  ff = fullread.ncbitxt(stub="gene2ensembl")
-#
-##
-## this is somewhat clumsy but works to establish a functional environment
-## note that GO2ALLEGS uses the GO hierarchy to add genes mapped to conceptual offspring of term
-##
-#  CURRENT = "org.Hs.egENSEMBL"
-#  CURRENTE = "org.Hs.egENSEMBL_env"
-## process data.frame
-#  bygene = strsplit(ff$Synonym, "\\|")
-#  lens = vapply(bygene, length, numeric(1))
-#  dat = data.frame(GeneID=as.character(rep(ff$GeneID, lens)), alias=unlist(bygene))
-#  dat = dat[-which(dat$alias=="-"),]
-#  byalias = split(dat$GeneID, dat$alias)
-## start environment production
-#  assign(CURRENTE, new.env(hash=TRUE), envir=ns)
-#  nn = lapply(seq_len(length(byalias)), 
-#     function(i) assign(names(byalias)[i], byalias[[i]], , envir=get(CURRENTE, envir=ns)))
-## Now create the active binding
-#  f = function() {
-#     class(org.Hs.egALIAS2EG_env) = c("hsParqEnv", "environment")
-#     org.Hs.egALIAS2EG_env
-#     }
-#  rm(list=CURRENT, envir=ns)
-#  makeActiveBinding(CURRENT, f, ns)
-#}
-#
-##' self-describing object for ENSEMBL
-##' @export
-#org.Hs.egENSEMBL <- NULL
-#
-#EnvBuilder = function(keys, values) function(pkgname, target_env_name = "org.Hs.egENSEMBL") {
-#  stopifnot(is.atomic(keys))
-#  stopifnot(is.list(values))
-#  CURRENT = target_env_name
-#  CURE = paste0(target_env_name, "_env")
-#  ns = getNamespace(pkgname)
-#  assign(CURE, new.env(hash=TRUE), envir=ns)
-#  nn = lapply(seq_len(length(keys)), function(i) assign(keys[i], values[[i]], envir=get(CURE, envir=ns)))
-#  f = function() {
-#    class(get(CURE)) = c("hsParqEnv", "environment")
-#    get(CURE)
-#    }
-#  rm(list=CURRENT, envir=ns)
-#  makeActiveBinding(CURRENT, f, ns)
-#}
-#
-#
-#  ff = fullread.ncbitxt(stub="gene2ensembl")
-#  bygene = strsplit(ff$Synonym, "\\|")
-#  lens = vapply(bygene, length, numeric(1))
-#  dat = data.frame(GeneID=as.character(rep(ff$GeneID, lens)), alias=unlist(bygene))
-#  dat = dat[-which(dat$alias=="-"),]
-#  byalias = split(dat$GeneID, dat$alias)
-#
-#bb = EnvBuilder(names(byalias), byalias)
-#
-
-
+#' closure producer for use in zzz.R
+#' @param keys character vector
+#' @param values list
+#' @param colname character of length 1 to be used as the values column name
+#' @export
 simpleEnvBuilder = function(keys, values, colname) function(pkgname, target_env_name = "org.Hs.egENSEMBL") {
   stopifnot(is.character(keys))
   stopifnot(is.list(values))
@@ -206,5 +147,8 @@ bygene = split(ff$Ensembl_gene_identifier, ff$GeneID)
 makeegENSEMBL = simpleEnvBuilder(keys=names(bygene), values=bygene, colname="ensembl_id")
 
 #' self-describing object for ENSEMBL
+#' @examples
+#' org.Hs.egENSEMBL
+#' toTable(org.Hs.egENSEMBL) |> head()
 #' @export
 org.Hs.egENSEMBL <- NULL

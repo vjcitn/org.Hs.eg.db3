@@ -26,6 +26,10 @@ arrow::read_parquet(path)
 
 methods::setOldClass("hsParqEnv")
 
+#' printer
+#' @export
+print.hsParqEnv = function(x, ...) methods::show(x)
+
 #' conversion utility
 #' @import methods
 #' @importFrom BiocGenerics toTable
@@ -49,8 +53,15 @@ setMethod("toTable", "hsParqEnv",
     return(ans)
     }
   if (is.character(ooo)) {
-    data.frame(gene_id=gid, vals=ooo) # FIXME ... need colname attribute for column
+    ans = data.frame(gene_id=gid, ooo) # FIXED? ... need colname attribute for column
+    names(ans)[2] = attr(x, "colname")
+    return(ans)
     }
   else stop("env format not handled")
 })
 
+#' simple presentation
+#' @export
+setMethod("show", "hsParqEnv", function(object) {
+ cat("hsParqEnv mapping for human\n")
+})

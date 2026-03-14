@@ -1,6 +1,6 @@
 Package: org.Hs.eg.db3
 Title: AnnotationDbi OrgDB analog for human on parquet+arrow+dplyr
-Version: 0.0.4
+Version: 0.0.5
 Authors@R:
     person(given = "Vince",
            family = "Carey",

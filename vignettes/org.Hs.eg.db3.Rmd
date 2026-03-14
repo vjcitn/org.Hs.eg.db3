@@ -28,9 +28,128 @@ package is intended to be more maintainable.
 
 # Environment example
 
+In the AnnotationDbi approach, we have various methods for
+extracting mappings between identifiers.  We preserve those
+methods here.
+
 ```{r lkenv1, message=FALSE}
 library(org.Hs.eg.db3)
 org.Hs.egGO
+class(org.Hs.egGO)
+str(get("26538", org.Hs.egGO)[1:3])
 toTable(org.Hs.egGO) |> head(10)
 ```
+
+There is also `AnnotationDbi::select`, which has served very well.
+
+# Parquet example
+
+However, the most basic information from NCBI can also
+be presented directly.
+
+```{r lkparq1}
+path = system.file("extdata", "Hs.gene2go.parquet", package="org.Hs.eg.db3")
+ggtab = arrow::read_parquet(path)
+ggtab |> head()
+```
+
+We use parquet for the serialization because it can foster cloud-oriented
+methods for annotation servicing.  With this approach, tidyverse methods
+are immediately applicable; this is not so for the AnnotationDbi approach.
+
+In this approach, we do not need separate environments for GO and GO2EG.
+Similarly, separate environments for mapping REFSEQ, REFSEQ2EG, SYMBOL,
+SYMBOL2EG are not required.  We provide them to prevent legacy code from
+breaking, but we will not provide them indefinitely.
+
+# Creating the parquet
+
+NCBI frequently updates mapping tables in text format.  The key URL
+as of March 2026 is
+```
+https://ftp.ncbi.nlm.nih.gov/gene/DATA/
+```
+We have
+```
+Parent Directory                                     -   
+ARCHIVE/                        2020-01-02 15:38    -   
+ASN_BINARY/                     2026-03-12 20:32    -   
+GENE_INFO/                      2026-03-12 20:32    -   
+expression/                     2017-03-06 17:55    -   
+special_requests/               2025-02-28 11:35    -   
+README                          2025-01-02 08:35   58K  
+README_ensembl                  2025-12-03 12:00   69K  
+gene2accession.gz               2026-03-12 20:18  4.0G  
+gene2ensembl.gz                 2026-03-12 20:18  277M  
+gene2go.gz                      2026-03-12 20:20  1.2G  
+gene2pubmed.gz                  2026-03-12 20:20  245M  
+gene2refseq.gz                  2026-03-12 20:23  2.0G  
+...
+```
+
+The following code operates on the `gene2ensembl.gz` (after downloading) to
+create a data resource *for all model orgnisms*:
+```
+library(DBI)
+library(duckdb)
+
+con = dbConnect(duckdb())
+
+dbExecute(con, "
+  CREATE TABLE gene2ensembl AS
+  SELECT *
+  FROM read_csv_auto(
+    'gene2ensembl.gz',
+    delim = '\t',
+    header = true,
+    compression = 'gzip',
+    ignore_errors=TRUE
+  )
+")
+
+dbExecute(con, "COPY (FROM gene2ensembl) TO 'gene2ensembl.parquet' 
+       (FORMAT parquet, COMPRESSION zstd, COMPRESSION_LEVEL 15)")
+```
+
+# Creating the extract for human
+
+```
+library(arrow)
+ens = read_parquet("gene2ensembl.parquet")
+library(dplyr)
+ens |> filter(`#tax_id`==9606L) |> 
+  write_parquet(sink="Hs.gene2ensembl.parquet", 
+  compression="zstd", compression_level=10L)
+```
+
+This is then placed in the extdata folder for an org.Hs.eg.db-like package.
+
+# Creating the environments to support legacy usage
+
+For the task of the creation of a map that has the form of a
+named list of character vectors, we have
+
+```
+simpleEnvBuilder = function(keys, values, colname) function(pkgname, 
+   target_env_name = "org.Hs.egENSEMBL") {
+  stopifnot(is.character(keys))
+  stopifnot(is.list(values))
+  CURRENT = target_env_name
+  CURE = paste0(target_env_name, "_env")
+  ns = getNamespace(pkgname)
+  assign(CURE, new.env(hash=TRUE), envir=ns)
+  nn = lapply(seq_len(length(keys)), function(i) assign(keys[i], values[[i]], envir=get(CURE, envir=ns)))
+  f = function() {
+    tmp = get(CURE)
+    class(tmp) = c("hsParqEnv", "environment")
+    attr(tmp, "colname") = colname
+    tmp
+    }
+  rm(list=CURRENT, envir=ns)
+  makeActiveBinding(CURRENT, f, ns)
+} 
+```
+
+This seems convoluted to me, but produces environments that function
+like those of the AnnotationDbi packages.
 

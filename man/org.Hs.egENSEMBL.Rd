@@ -13,4 +13,8 @@ org.Hs.egENSEMBL
 \description{
 self-describing object for ENSEMBL
 }
+\examples{
+org.Hs.egENSEMBL
+toTable(org.Hs.egENSEMBL) |> head()
+}
 \keyword{datasets}

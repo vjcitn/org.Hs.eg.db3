@@ -2,10 +2,17 @@
 % Please edit documentation in R/envfunc.R
 \name{simpleEnvBuilder}
 \alias{simpleEnvBuilder}
-\title{self-describing object for ENSEMBL}
+\title{closure producer for use in zzz.R}
 \usage{
 simpleEnvBuilder(keys, values, colname)
 }
+\arguments{
+\item{keys}{character vector}
+
+\item{values}{list}
+
+\item{colname}{character of length 1 to be used as the values column name}
+}
 \description{
-self-describing object for ENSEMBL
+closure producer for use in zzz.R
 }

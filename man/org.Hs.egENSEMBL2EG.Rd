@@ -5,7 +5,7 @@
 \alias{org.Hs.egENSEMBL2EG}
 \title{self-describing object for ENSEMBL2EG}
 \format{
-An object of class \code{hsParqEnv} (inherits from \code{environment}) of length 63890.
+An object of class \code{hsParqEnv} (inherits from \code{environment}) of length 38267.
 }
 \usage{
 org.Hs.egENSEMBL2EG

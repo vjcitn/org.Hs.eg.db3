@@ -236,3 +236,45 @@ makeegENSEMBLPROT2EG = simpleEnvBuilder(keys=names(byens), values=byens, keycoln
 #' toTable(org.Hs.egENSEMBLPROT2EG) |> head()
 #' @export
 org.Hs.egENSEMBLPROT2EG <- NULL
+
+### several maps from gene_info
+
+ginf = fullread.ncbitxt(stub="gene_info")
+
+#### MAP
+
+bygene = split(ginf$map_location, ginf$GeneID)
+makeegMAP = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="cytogenetic_location")
+
+#' self-describing object for MAP
+#' @examples
+#' org.Hs.egMAP
+#' toTable(org.Hs.egMAP) |> head()
+#' @export
+org.Hs.egMAP <- NULL
+
+byloc = split(ginf$GeneID, ginf$map_location)
+makeegMAP2EG = simpleEnvBuilder(keys=names(byloc), values=byloc, valcolname="gene_id", keycolname="cytogenetic_location")
+
+#' self-describing object for MAP
+#' @examples
+#' org.Hs.egMAP2EG
+#' toTable(org.Hs.egMAP2EG) |> head()
+#' @export
+org.Hs.egMAP2EG <- NULL
+
+#### GENETYPE
+
+bygene = split(ginf$type_of_gene, ginf$GeneID)
+makeegGENETYPE = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="gene_type")
+
+#' self-describing object for GENETYPE
+#' @examples
+#' org.Hs.egGENETYPE
+#' toTable(org.Hs.egGENETYPE) |> head()
+#' @export
+org.Hs.egGENETYPE <- NULL
+
+#### OMIM
+
+## use https://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen, not the MIM codes in gene_info?

@@ -10,5 +10,8 @@
   makeegENSEMBLTRANS2EG(pkgname, "org.Hs.egENSEMBLTRANS2EG")
   makeegENSEMBLPROT(pkgname, "org.Hs.egENSEMBLPROT")
   makeegENSEMBLPROT2EG(pkgname, "org.Hs.egENSEMBLPROT2EG")
+  makeegMAP(pkgname, "org.Hs.egMAP")
+  makeegMAP2EG(pkgname, "org.Hs.egMAP2EG")
+  makeegGENETYPE(pkgname, "org.Hs.egGENETYPE")
 }
 

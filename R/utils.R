@@ -30,7 +30,7 @@ methods::setOldClass("hsParqEnv")
 #' @export
 print.hsParqEnv = function(x, ...) methods::show(x)
 
-#' conversion utility
+#' conversion utility, method declared in BiocGenerics
 #' @import methods
 #' @importFrom BiocGenerics toTable
 #' @param x hsParqEnv instance
@@ -60,6 +60,18 @@ setMethod("toTable", "hsParqEnv",
     return(ans)
     }
   else stop("env format not handled")
+})
+
+setGeneric("keys", function(x, keytype, ...) standardGeneric("keys"))
+
+#' emulate keys method of AnnotationDbi but do not import generic
+#' @param x instance of hsParqEnv
+#' @param keytype not used
+#' @examples
+#' head(keys(org.Hs.egMAP2EG))
+#' @export
+setMethod("keys", "hsParqEnv", function(x, keytype, ...) {
+ ls(x)
 })
 
 #' simple presentation

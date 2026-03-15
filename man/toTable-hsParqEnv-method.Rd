@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{toTable,hsParqEnv-method}
 \alias{toTable,hsParqEnv-method}
-\title{conversion utility}
+\title{conversion utility, method declared in BiocGenerics}
 \usage{
 \S4method{toTable}{hsParqEnv}(x, ...)
 }
@@ -12,7 +12,7 @@
 \item{\dots}{not used}
 }
 \description{
-conversion utility
+conversion utility, method declared in BiocGenerics
 }
 \examples{
 toTable(org.Hs.egGO) |> head(10)

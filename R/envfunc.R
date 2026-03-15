@@ -117,9 +117,15 @@ org.Hs.egALIAS2EG <- NULL
 #' closure producer for use in zzz.R
 #' @param keys character vector
 #' @param values list
-#' @param colname character of length 1 to be used as the values column name
+#' @param keycolname character of length 1 to be used as the key column name for toTable
+#' @param valcolname character of length 1 to be used as the values column name for toTable
 #' @export
-simpleEnvBuilder = function(keys, values, colname) function(pkgname, target_env_name = "org.Hs.egENSEMBL") {
+simpleEnvBuilder = function(keys, values, keycolname, valcolname) {
+      force(keys)  # this is crucial to avoid delayed evaluation until active binding is triggered
+      force(values)
+      force(keycolname)
+      force(valcolname)
+     function(pkgname, target_env_name = "org.Hs.egENSEMBL") {
   stopifnot(is.character(keys))
   stopifnot(is.list(values))
   CURRENT = target_env_name
@@ -128,13 +134,15 @@ simpleEnvBuilder = function(keys, values, colname) function(pkgname, target_env_
   assign(CURE, new.env(hash=TRUE), envir=ns)
   nn = lapply(seq_len(length(keys)), function(i) assign(keys[i], values[[i]], envir=get(CURE, envir=ns)))
   f = function() {
-    tmp = get(CURE)
+    tmp = get(CURE, envir=ns)
     class(tmp) = c("hsParqEnv", "environment")
-    attr(tmp, "colname") = colname
+    attr(tmp, "keycolname") = keycolname
+    attr(tmp, "valcolname") = valcolname
     tmp
     }
   rm(list=CURRENT, envir=ns)
   makeActiveBinding(CURRENT, f, ns)
+ }
 }
 
 #
@@ -142,9 +150,15 @@ simpleEnvBuilder = function(keys, values, colname) function(pkgname, target_env_
 #
 
 ff = fullread.ncbitxt(stub="gene2ensembl")
-bygene = split(ff$Ensembl_gene_identifier, ff$GeneID)
+#
+# has lots of columns but simple envs need to be based on unique records
+#
+litff = dplyr::select(ff, Ensembl_gene_identifier, GeneID)
+litff = litff |> dplyr::distinct()
+bygene = split(litff$Ensembl_gene_identifier, litff$GeneID)
   
-makeegENSEMBL = simpleEnvBuilder(keys=names(bygene), values=bygene, colname="ensembl_id")
+makeegENSEMBL = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="ensembl_id")
+# now in zzz.R, add makeegENSEMBL(pkgname, "org.Hs.egENSEMBL") in .onLoad
 
 #' self-describing object for ENSEMBL
 #' @examples
@@ -152,3 +166,73 @@ makeegENSEMBL = simpleEnvBuilder(keys=names(bygene), values=bygene, colname="ens
 #' toTable(org.Hs.egENSEMBL) |> head()
 #' @export
 org.Hs.egENSEMBL <- NULL
+
+byens = split(litff$GeneID, litff$Ensembl_gene_identifier)
+makeegENSEMBL2EG = simpleEnvBuilder(keys=names(byens), values=byens, keycolname="ensembl_id", valcolname="gene_id")
+
+#' self-describing object for ENSEMBL2EG
+#' @examples
+#' org.Hs.egENSEMBL2EG
+#' toTable(org.Hs.egENSEMBL2EG) |> head()
+#' @export
+org.Hs.egENSEMBL2EG <- NULL
+
+#[15] "org.Hs.egENSEMBL2EG"      "org.Hs.egENSEMBLPROT"
+#[17] "org.Hs.egENSEMBLPROT2EG"  "org.Hs.egENSEMBLTRANS"
+#[19] "org.Hs.egENSEMBLTRANS2EG"
+
+#> head(ff) |> as.data.frame()
+#  #tax_id GeneID Ensembl_gene_identifier RNA_nucleotide_accession.version
+#1    9606      1         ENSG00000121410                      NM_130786.4
+#2    9606      2         ENSG00000175899                      NM_000014.6
+#  Ensembl_rna_identifier protein_accession.version Ensembl_protein_identifier
+#1      ENST00000263100.8               NP_570602.2          ENSP00000263100.2
+#2     ENST00000318602.12               NP_000005.3          ENSP00000323929.8
+
+### TRANS
+
+litff = dplyr::select(ff, Ensembl_rna_identifier, GeneID) |> dplyr::distinct()
+
+bygene = split(litff$Ensembl_rna_identifier, litff$GeneID)
+makeegENSEMBLTRANS = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="trans_id")
+
+#' self-describing object for ENSEMBLTRANS
+#' @examples
+#' org.Hs.egENSEMBLTRANS
+#' toTable(org.Hs.egENSEMBLTRANS) |> head()
+#' @export
+org.Hs.egENSEMBLTRANS <- NULL
+
+byens = split(litff$GeneID, litff$Ensembl_rna_identifier)
+makeegENSEMBLTRANS2EG = simpleEnvBuilder(keys=names(byens), values=byens, keycolname="trans_id", valcolname="gene_id")
+
+#' self-describing object for ENSEMBLTRANS2EG
+#' @examples
+#' org.Hs.egENSEMBLTRANS2EG
+#' toTable(org.Hs.egENSEMBLTRANS2EG) |> head()
+#' @export
+org.Hs.egENSEMBLTRANS2EG <- NULL
+
+### PROT
+
+litff = dplyr::select(ff, Ensembl_protein_identifier, GeneID) |> dplyr::distinct()
+
+bygene = split(litff$Ensembl_protein_identifier, litff$GeneID)
+makeegENSEMBLPROT = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="prot_id")
+
+#' self-describing object for ENSEMBLPROT
+#' @examples
+#' org.Hs.egENSEMBLPROT
+#' toTable(org.Hs.egENSEMBLPROT) |> head()
+#' @export
+org.Hs.egENSEMBLPROT <- NULL
+
+byens = split(litff$GeneID, litff$Ensembl_protein_identifier)
+makeegENSEMBLPROT2EG = simpleEnvBuilder(keys=names(byens), values=byens, keycolname="prot_id", valcolname="gene_id")
+
+#' self-describing object for ENSEMBLPROT2EG
+#' @examples
+#' org.Hs.egENSEMBLPROT2EG
+#' toTable(org.Hs.egENSEMBLPROT2EG) |> head()
+#' @export
+org.Hs.egENSEMBLPROT2EG <- NULL

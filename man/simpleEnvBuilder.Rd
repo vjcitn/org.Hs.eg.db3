@@ -4,14 +4,16 @@
 \alias{simpleEnvBuilder}
 \title{closure producer for use in zzz.R}
 \usage{
-simpleEnvBuilder(keys, values, colname)
+simpleEnvBuilder(keys, values, keycolname, valcolname)
 }
 \arguments{
 \item{keys}{character vector}
 
 \item{values}{list}
 
-\item{colname}{character of length 1 to be used as the values column name}
+\item{keycolname}{character of length 1 to be used as the key column name for toTable}
+
+\item{valcolname}{character of length 1 to be used as the values column name for toTable}
 }
 \description{
 closure producer for use in zzz.R

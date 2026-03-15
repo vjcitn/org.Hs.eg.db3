@@ -43,6 +43,7 @@ setMethod("toTable", "hsParqEnv",
   oo = as.list(x)
   nn = names(oo)
   ooo = unlist(oo,recursive=FALSE)
+  if (is.numeric(ooo)) ooo = as.character(ooo)  # gene ids are integer
   lens = sapply(oo, length)
   gid = rep(nn, lens)
   if (is.list(ooo)) {
@@ -53,8 +54,9 @@ setMethod("toTable", "hsParqEnv",
     return(ans)
     }
   if (is.character(ooo)) {
-    ans = data.frame(gene_id=gid, ooo) # FIXED? ... need colname attribute for column
-    names(ans)[2] = attr(x, "colname")
+    ans = data.frame(gid, ooo) # FIXED? ... need colname attribute for column
+    names(ans)[1] = attr(x, "keycolname")
+    names(ans)[2] = attr(x, "valcolname")
     return(ans)
     }
   else stop("env format not handled")

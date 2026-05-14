@@ -1,6 +1,6 @@
 Package: org.Hs.eg.db3
 Title: AnnotationDbi OrgDB analog for human on parquet+arrow+dplyr
-Version: 0.0.5
+Version: 0.0.6
 Authors@R:
     person(given = "Vince",
            family = "Carey",
@@ -20,5 +20,5 @@ biocViews: Infrastructure
 Encoding: UTF-8
 URL: https://github.com/vjcitn/org.Hs.eg.db3
 BugReports: https://github.com/vjcitn/org.Hs.eg.db3/issues
-RoxygenNote: 7.3.3
-Collate: utils.R envfunc.R zzz.R
+Collate: orgObj.R utils.R envfunc.R zzz.R
+Config/roxygen2/version: 8.0.0

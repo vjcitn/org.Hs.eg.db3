@@ -275,6 +275,89 @@ makeegGENETYPE = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname=
 #' @export
 org.Hs.egGENETYPE <- NULL
 
+#### GENENAME
+
+bygene = split(ginf$description, ginf$GeneID)
+# saveRDS(bygene, file="hs.egGENENAME.rds")
+# ---
+# bygene = readRDS(system.file("tables_323", "hs.egGENENAME.rds", package="org.Hs.eg.db3"))
+makeegGENENAME = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="gene_name")
+
+#' self-describing object for GENENAME
+#' @examples
+#' org.Hs.egGENENAME
+#' toTable(org.Hs.egGENENAME) |> head()
+#' @export
+org.Hs.egGENENAME <- NULL
+
+#### SYMBOL
+
+# ---
+bygene = split(ginf$Symbol, ginf$GeneID)
+# saveRDS(bygene, file="hs.egSYMBOL.rds")
+# ---
+# bygene = readRDS(system.file("tables_323", "hs.egSYMBOL.rds", package="org.Hs.eg.db3"))
+makeegSYMBOL = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="symbol")
+
+#' self-describing object for SYMBOL
+#' @examples
+#' org.Hs.egSYMBOL
+#' toTable(org.Hs.egSYMBOL) |> head()
+#' @export
+org.Hs.egSYMBOL <- NULL
+
+bysym = split(ginf$GeneID, ginf$Symbol)
+makeegSYMBOL2EG = simpleEnvBuilder(keys=names(bysym), values=bysym, valcolname="gene_id", keycolname="symbol")
+
+#' self-describing object for SYMBOL2EG
+#' @examples
+#' org.Hs.egSYMBOL2EG
+#' toTable(org.Hs.egSYMBOL2EG) |> head()
+#' @export
+org.Hs.egSYMBOL2EG <- NULL
+
 #### OMIM
 
 ## use https://ftp.ncbi.nlm.nih.gov/gene/DATA/mim2gene_medgen, not the MIM codes in gene_info?
+
+#> head(mimdat)
+#  MIM.number GeneID      type   Source MedGenCUI Comment
+#1     100050      - phenotype        -  C3149220       -
+#2     100070      - phenotype        -  C1853365       -
+#3     100100   1131 phenotype  GeneMap  C0033770       -
+#4     100200      - phenotype        -  C4551519       -
+#5     100300  57514 phenotype  GeneMap  C4551482       -
+#6     100600      - phenotype        -  C2930792       -
+
+
+# ---
+ om = arrow::read_parquet(system.file("extdata", "mim2gene_medgen.parquet", package="org.Hs.eg.db3")) |> 
+         as.data.frame()
+ om = om[which(om$GeneID != "-"),]
+ bygene = split(om$MIM.number, om$GeneID)
+# saveRDS(bygene, file="hs.egOMIM.rds")
+# ---
+# bygene = readRDS(system.file("tables_323", "hs.egOMIM.rds", package="org.Hs.eg.db3"))
+makeegOMIM = simpleEnvBuilder(keys=names(bygene), values=bygene, keycolname="gene_id", valcolname="omim_id")
+
+#' self-describing object for OMIM
+#' @examples
+#' org.Hs.egOMIM
+#' toTable(org.Hs.egOMIM) |> head()
+#' @export
+org.Hs.egOMIM <- NULL
+
+# ---
+ byom = split(om$GeneID, om$MIM.number)
+# saveRDS(byom, file="hs.egOMIM2EG.rds")
+# ---
+# byom = readRDS(system.file("tables_323", "hs.egOMIM2EG.rds", package="org.Hs.eg.db3"))
+makeegOMIM2EG = simpleEnvBuilder(keys=names(byom), values=byom, valcolname="gene_id", keycolname="omim_id")
+
+#' self-describing object for OMIM2EG
+#' @examples
+#' org.Hs.egOMIM2EG
+#' toTable(org.Hs.egOMIM2EG) |> head()
+#' @export
+org.Hs.egOMIM2EG <- NULL
+
